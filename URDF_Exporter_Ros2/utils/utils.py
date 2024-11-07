@@ -9,7 +9,8 @@ import adsk, adsk.core, adsk.fusion
 import os.path, re
 from xml.etree import ElementTree
 from xml.dom import minidom
-from distutils.dir_util import copy_tree
+import shutil
+from shutil import copytree as copy_tree
 import fileinput
 import sys
 
@@ -145,29 +146,25 @@ def prettify(elem):
     return reparsed.toprettyxml(indent="  ")
 
 def create_package(package_name, save_dir, package_dir):
-    try: os.mkdir(save_dir + '/launch')
-    except: pass
+    # Delete the save directory if it already exists to ensure a clean copy
+    if os.path.exists(save_dir):
+        shutil.rmtree(save_dir)
 
-    try: os.mkdir(save_dir + '/urdf')
-    except: pass
+    # Create the main save directory and subdirectories as required
+    os.makedirs(save_dir, exist_ok=True)
+    
+    # Create subdirectories and files as specified
+    os.makedirs(os.path.join(save_dir, 'launch'), exist_ok=True)
+    os.makedirs(os.path.join(save_dir, 'urdf'), exist_ok=True)
+    os.makedirs(os.path.join(save_dir, 'config'), exist_ok=True)
+    os.makedirs(os.path.join(save_dir, package_name), exist_ok=True)
+    open(os.path.join(save_dir, package_name, '__init__.py'), 'w').close()
+    os.makedirs(os.path.join(save_dir, 'resource'), exist_ok=True)
+    open(os.path.join(save_dir, 'resource', package_name), 'w').close()
+    os.makedirs(os.path.join(save_dir, 'test'), exist_ok=True)
 
-    try: os.mkdir(save_dir + '/config')
-    except: pass
-
-    try: os.mkdir(save_dir + '/' +package_name)
-    except: pass
-    with open(os.path.join(save_dir, package_name, '__init__.py'), 'w'):
-        pass
-
-    try: os.mkdir(save_dir + '/resource')
-    except: pass
-    with open(os.path.join(save_dir, 'resource', package_name), 'w'):
-        pass
-
-    try: os.mkdir(save_dir + '/test')
-    except: pass
-
-    copy_tree(package_dir, save_dir)
+    # Perform the copy operation from package_dir to save_dir
+    shutil.copytree(package_dir, save_dir, dirs_exist_ok=True)
 
 def update_setup_py(save_dir, package_name):
     file_name = save_dir + '/setup.py'

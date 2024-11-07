@@ -1,0 +1,4 @@
+{
+    "ros.distro": "humble",
+    "cmake.sourceDirectory": "/home/mecha/fusion2urdf-ros2/Example/Basic_Robot_description"
+}
